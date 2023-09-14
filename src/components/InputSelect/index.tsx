@@ -1,7 +1,9 @@
 import Downshift from "downshift"
-import { useCallback, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import classNames from "classnames"
 import { DropdownPosition, GetDropdownPositionFn, InputSelectOnChange, InputSelectProps } from "./types"
+import { useOnScroll } from "src/hooks/useOnScroll"
+import { debouncify } from "src/utils/debounce"
 
 export function InputSelect<TItem>({
   label,
@@ -17,6 +19,20 @@ export function InputSelect<TItem>({
     top: 0,
     left: 0,
   })
+
+  const dropdownTriggerRef = useRef<HTMLDivElement>(null)
+
+  // shorter debounce delay will affect client's performance but result in
+  // smoother UI
+  const DEBOUNCE_DELAY_MS = 50
+  useOnScroll(
+    debouncify(() => {
+      const clientRect = dropdownTriggerRef.current?.getBoundingClientRect()
+      if (!!clientRect) {
+        setDropdownPosition({ left: clientRect.x, top: clientRect.y + clientRect.height })
+      }
+    }, DEBOUNCE_DELAY_MS)
+  )
 
   const onChange = useCallback<InputSelectOnChange<TItem>>(
     (selectedItem) => {
@@ -58,6 +74,7 @@ export function InputSelect<TItem>({
             <div className="RampBreak--xs" />
             <div
               className="RampInputSelect--input"
+              ref={dropdownTriggerRef}
               onClick={(event) => {
                 setDropdownPosition(getDropdownPosition(event.target))
                 toggleProps.onClick(event)
