@@ -55,6 +55,8 @@ export function App() {
     }
   }, [employeeUtils.loading, employees, loadAllTransactions])
 
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null)
+
   return (
     <Fragment>
       <main className="MainContainer">
@@ -73,10 +75,10 @@ export function App() {
             label: `${item.firstName} ${item.lastName}`,
           })}
           onChange={async (newValue) => {
-            if (newValue === null) {
+            if (newValue === null || newValue.id === "") {
               return
             }
-
+            setSelectedEmployeeId(newValue.id)
             await loadTransactionsByEmployee(newValue.id)
           }}
         />
@@ -86,7 +88,7 @@ export function App() {
         <div className="RampGrid">
           <Transactions transactions={transactions} />
 
-          {transactions !== null && (
+          {transactions !== null && !selectedEmployeeId && paginatedTransactions?.nextPage !== null && (
             <button
               className="RampButton"
               disabled={paginatedTransactionsUtils.loading}
