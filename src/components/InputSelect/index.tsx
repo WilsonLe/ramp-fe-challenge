@@ -24,7 +24,7 @@ export function InputSelect<TItem>({
 
   // shorter debounce delay will affect client's performance but result in
   // smoother UI
-  const DEBOUNCE_DELAY_MS = 50
+  const DEBOUNCE_DELAY_MS = 1
   useOnScroll(
     debouncify(() => {
       const clientRect = dropdownTriggerRef.current?.getBoundingClientRect()
