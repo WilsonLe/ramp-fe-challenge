@@ -23,8 +23,8 @@ export function App() {
         currentTransactions?.forEach((currentTransaction) =>
           currentTransactionIds.add(currentTransaction.id)
         )
-        const newPaginatedTransactions = paginatedTransactions.data.filter((transaction) =>
-          !currentTransactionIds.has(transaction.id)
+        const newPaginatedTransactions = paginatedTransactions.data.filter(
+          (transaction) => !currentTransactionIds.has(transaction.id)
         )
         return [...currentTransactions, ...newPaginatedTransactions]
       })
@@ -36,11 +36,9 @@ export function App() {
   const loadAllTransactions = useCallback(async () => {
     setIsLoading(true)
     transactionsByEmployeeUtils.invalidateData()
-
     await employeeUtils.fetchAll()
-    await paginatedTransactionsUtils.fetchAll()
-
     setIsLoading(false)
+    await paginatedTransactionsUtils.fetchAll()
   }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
