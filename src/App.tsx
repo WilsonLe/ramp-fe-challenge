@@ -6,7 +6,7 @@ import { useEmployees } from "./hooks/useEmployees"
 import { usePaginatedTransactions } from "./hooks/usePaginatedTransactions"
 import { useTransactionsByEmployee } from "./hooks/useTransactionsByEmployee"
 import { EMPTY_EMPLOYEE } from "./utils/constants"
-import { Employee } from "./utils/types"
+import { Employee, Transaction } from "./utils/types"
 
 export function App() {
   const { data: employees, ...employeeUtils } = useEmployees()
@@ -14,10 +14,24 @@ export function App() {
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
 
-  const transactions = useMemo(
-    () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
-    [paginatedTransactions, transactionsByEmployee]
-  )
+  const [transactions, setTransactions] = useState<Transaction[] | null>(null)
+  useEffect(() => {
+    if (paginatedTransactions?.data) {
+      setTransactions((currentTransactions) => {
+        if (!currentTransactions) return paginatedTransactions.data
+        const currentTransactionIds: Set<string> = new Set()
+        currentTransactions?.forEach((currentTransaction) =>
+          currentTransactionIds.add(currentTransaction.id)
+        )
+        const newPaginatedTransactions = paginatedTransactions.data.filter((transaction) =>
+          !currentTransactionIds.has(transaction.id)
+        )
+        return [...currentTransactions, ...newPaginatedTransactions]
+      })
+    } else {
+      setTransactions(transactionsByEmployee ?? null)
+    }
+  }, [paginatedTransactions, transactionsByEmployee])
 
   const loadAllTransactions = useCallback(async () => {
     setIsLoading(true)
