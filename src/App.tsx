@@ -75,11 +75,9 @@ export function App() {
             label: `${item.firstName} ${item.lastName}`,
           })}
           onChange={async (newValue) => {
-            if (newValue === null || newValue.id === "") {
-              return
-            }
-            setSelectedEmployeeId(newValue.id)
+            if (newValue === null) return
             await loadTransactionsByEmployee(newValue.id)
+            if (newValue.id !== "") setSelectedEmployeeId(newValue.id)
           }}
         />
 
